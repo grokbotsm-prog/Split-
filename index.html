@@ -10,7 +10,420 @@
   <meta name="description" content="Split a restaurant check. Each person's share, the tip, and the total. Nothing is saved or sent.">
   <title>Split</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239d3d22'/%3E%3Cpath d='M8 11h16M8 16h10M8 21h16' stroke='%23fbf6ec' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #e6dcc9;
+  --card: #fbf6ec;
+  --ink: #1c1612;
+  --muted: #5a5146;
+  --line: #ddd0bc;
+  --field: #fffdf8;
+  --accent: #9d3d22;
+  --focus: #9d3d22;
+  --placeholder: #6e6458;
+  --shadow: 0 18px 50px rgba(48, 28, 12, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0e0d0b;
+    --card: #1b1814;
+    --ink: #f6f0e6;
+    --muted: #d2c3ae;
+    --line: #3d342c;
+    --field: #12100e;
+    --accent: #e2a27a;
+    --focus: #e2a27a;
+    --placeholder: #8d8070;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--card);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+main {
+  width: min(32rem, 100%);
+  margin-inline: auto;
+  padding: max(0.85rem, env(safe-area-inset-top)) max(1.15rem, env(safe-area-inset-right)) max(1.35rem, env(safe-area-inset-bottom)) max(1.15rem, env(safe-area-inset-left));
+  background: var(--card);
+  border-top: 0.5rem solid var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.125rem;
+  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.tagline {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+.results {
+  margin-top: 1rem;
+  padding-bottom: 0.15rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.hero {
+  margin: 0.15rem 0 0;
+  font-size: clamp(3.4rem, 17vw, 5.25rem);
+  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.hero.mid {
+  font-size: clamp(2.5rem, 12vw, 3.8rem);
+}
+
+.hero.long {
+  font-size: clamp(1.7rem, 8vw, 2.6rem);
+  white-space: normal;
+}
+
+.note {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.share-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 0;
+}
+
+.share-row + .share-row {
+  border-top: 1px solid var(--line);
+}
+
+.who {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.amt {
+  margin-left: auto;
+  max-width: 100%;
+  font-size: clamp(2.1rem, 10vw, 2.9rem);
+  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.amt.mid {
+  font-size: clamp(1.6rem, 7vw, 2.1rem);
+}
+
+.amt.long {
+  font-size: 1.35rem;
+  white-space: normal;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  margin: 0.85rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 4px double var(--ink);
+}
+
+.totals div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.totals dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.totals dd {
+  margin: 0;
+  font-size: clamp(1.7rem, 7vw, 2.15rem);
+  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.total-line {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.total-line dd {
+  font-size: clamp(1.9rem, 8vw, 2.45rem);
+}
+
+form {
+  margin-top: 1.15rem;
+}
+
+.block {
+  margin-top: 1.15rem;
+}
+
+.block:first-child {
+  margin-top: 0;
+}
+
+fieldset {
+  border: 0;
+  margin: 1.15rem 0 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+legend,
+label {
+  display: block;
+  margin: 0 0 0.45rem;
+  padding: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.sublabel {
+  margin-top: 0.75rem;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.presets button {
+  min-height: 3.35rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.presets button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--card);
+}
+
+.money,
+.percent,
+.stepper button,
+.stepper input {
+  background: var(--field);
+  border: 2px solid var(--ink);
+  border-radius: 0.9rem;
+}
+
+.money,
+.percent {
+  display: flex;
+  align-items: stretch;
+  gap: 0.3rem;
+  min-height: 4rem;
+  padding: 0.35rem 0.9rem;
+  cursor: text;
+}
+
+.money input,
+.percent input,
+.stepper input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--accent);
+}
+
+.money input,
+.percent input {
+  align-self: stretch;
+  min-height: 3.1rem;
+}
+
+.money input {
+  font-size: 2.15rem;
+}
+
+.percent input {
+  font-size: 1.85rem;
+}
+
+.prefix,
+.suffix {
+  flex: none;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 1.7rem;
+  font-weight: 700;
+  font-weight: 750;
+}
+
+input:focus {
+  outline: none;
+}
+
+.money:focus-within,
+.percent:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 4rem 1fr 4rem;
+  gap: 0.55rem;
+}
+
+.stepper button,
+.stepper input {
+  height: 4rem;
+}
+
+.stepper button {
+  font-size: 2.2rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.stepper input {
+  text-align: center;
+  font-size: 2.15rem;
+}
+
+button:focus-visible,
+.stepper input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+.footer {
+  margin: 1.25rem 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+@media (min-width: 760px) {
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg);
+    padding: 1.5rem;
+  }
+
+  main {
+    width: min(32rem, 100%);
+    margin-block: auto;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+}
+
+@media (max-width: 359px) {
+  .totals {
+    grid-template-columns: 1fr;
+  }
+
+  .total-line {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .presets button {
+    font-size: 1.1rem;
+    padding-inline: 0.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+  }
+}
+</style>
 </head>
 <body>
   <main>
@@ -76,6 +489,356 @@
       <p class="footer">Turn on JavaScript to calculate the split. The page still sends nothing over the network.</p>
     </noscript>
   </main>
-  <script src="app.js"></script>
+  <script>
+"use strict";
+
+// Money is integer cents. The tip is rounded once, half a cent up,
+// then the total is split so the shares differ by at most one cent
+// and add back to the total.
+
+function stripLeadingZeros(digits) {
+  return digits.replace(/^0+(?=\d)/, "");
+}
+
+function sanitizeMoney(raw) {
+  let value = String(raw).replace(/[$€£¥\s]/g, "");
+  const lastComma = value.lastIndexOf(",");
+  const lastDot = value.lastIndexOf(".");
+
+  if (lastComma !== -1 && lastDot !== -1) {
+    if (lastComma > lastDot) value = value.replace(/\./g, "").replace(",", ".");
+    else value = value.replace(/,/g, "");
+  } else if (lastComma !== -1) {
+    if (/^\d{1,3}(,\d{3})+$/.test(value)) value = value.replace(/,/g, "");
+    else value = value.replace(",", ".");
+  }
+
+  value = value.replace(/[^\d.]/g, "");
+  const dot = value.indexOf(".");
+  if (dot === -1) return stripLeadingZeros(value).slice(0, 6);
+
+  const whole = stripLeadingZeros(value.slice(0, dot).replace(/\./g, "")).slice(0, 6);
+  const frac = value.slice(dot + 1).replace(/\./g, "").slice(0, 2);
+  return (whole === "" ? "0" : whole) + "." + frac;
+}
+
+function sanitizePercent(raw) {
+  const value = String(raw).replace(/,/g, ".").replace(/[^\d.]/g, "");
+  const dot = value.indexOf(".");
+  let whole;
+  let frac = "";
+  let hasDot = false;
+
+  if (dot !== -1) {
+    hasDot = true;
+    whole = value.slice(0, dot).replace(/\./g, "");
+    frac = value.slice(dot + 1).replace(/\./g, "").slice(0, 2);
+  } else {
+    whole = value;
+  }
+
+  whole = stripLeadingZeros(whole).slice(0, 3);
+  if (whole === "" && !hasDot) return "";
+  if (whole === "") whole = "0";
+  if (Number(whole) >= 100) return "100";
+  if (Number(whole + "." + (frac || "0")) > 100) return "100";
+  return hasDot ? whole + "." + frac : whole;
+}
+
+function moneyToCents(str) {
+  if (!str || str === ".") return 0;
+  const parts = String(str).split(".");
+  const dollars = parseInt(parts[0] || "0", 10) || 0;
+  const cents = parseInt((parts[1] || "").padEnd(2, "0").slice(0, 2), 10) || 0;
+  return dollars * 100 + cents;
+}
+
+// Basis points: 18% = 1800, 18.5% = 1850, 18.25% = 1825.
+function percentToBps(str) {
+  if (!str || str === ".") return 0;
+  const parts = String(str).split(".");
+  const whole = parseInt(parts[0] || "0", 10) || 0;
+  const frac = parseInt((parts[1] || "").padEnd(2, "0").slice(0, 2), 10) || 0;
+  return Math.min(10000, whole * 100 + frac);
+}
+
+function tipCents(billCents, bps) {
+  return Math.floor((billCents * bps + 5000) / 10000);
+}
+
+function clampPeople(people) {
+  const value = Math.floor(Number(people));
+  if (!Number.isFinite(value) || value < 1) return 1;
+  return Math.min(99, value);
+}
+
+function splitCents(totalCents, people) {
+  const count = clampPeople(people);
+  const base = Math.floor(totalCents / count);
+  const extra = totalCents % count;
+  const shares = [];
+  for (let i = 0; i < count; i += 1) shares.push(i < extra ? base + 1 : base);
+  return shares;
+}
+
+function formatCents(cents) {
+  const negative = cents < 0;
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100);
+  const frac = abs % 100;
+  const body = String(dollars).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return (negative ? "-$" : "$") + body + "." + String(frac).padStart(2, "0");
+}
+
+function formatPercent(bps) {
+  const whole = Math.floor(bps / 100);
+  const frac = bps % 100;
+  if (frac === 0) return whole + "%";
+  if (frac % 10 === 0) return whole + "." + frac / 10 + "%";
+  return whole + "." + String(frac).padStart(2, "0") + "%";
+}
+
+function calculate(billRaw, tipRaw, people) {
+  const billStr = sanitizeMoney(billRaw);
+  const tipStr = sanitizePercent(tipRaw);
+  const count = clampPeople(people);
+  const bill = moneyToCents(billStr);
+  const bps = percentToBps(tipStr);
+  const tip = tipCents(bill, bps);
+  const total = bill + tip;
+  const shares = splitCents(total, count);
+  return {
+    billCents: bill,
+    bps: bps,
+    tipCents: tip,
+    totalCents: total,
+    people: count,
+    shares: shares
+  };
+}
+
+var SplitMath = {
+  sanitizeMoney: sanitizeMoney,
+  sanitizePercent: sanitizePercent,
+  moneyToCents: moneyToCents,
+  percentToBps: percentToBps,
+  tipCents: tipCents,
+  splitCents: splitCents,
+  formatCents: formatCents,
+  formatPercent: formatPercent,
+  calculate: calculate
+};
+
+if (typeof module !== "undefined" && module.exports) module.exports = SplitMath;
+
+function initSplitPage() {
+  const billInput = document.getElementById("bill");
+  const tipInput = document.getElementById("tip");
+  const peopleInput = document.getElementById("people");
+  const fewer = document.getElementById("fewer");
+  const more = document.getElementById("more");
+  const sharesEl = document.getElementById("shares");
+  const tipLabel = document.getElementById("tip-label");
+  const tipOut = document.getElementById("tip-out");
+  const totalOut = document.getElementById("total-out");
+  const presets = Array.prototype.slice.call(document.querySelectorAll("[data-tip]"));
+  const form = document.getElementById("check");
+  let people = 2;
+
+  function readPeople() {
+    const value = parseInt(peopleInput.value, 10);
+    if (!Number.isInteger(value) || value < 1) return null;
+    return Math.min(99, value);
+  }
+
+  function assignIfChanged(input, next) {
+    if (input.value === next) return;
+    const start = input.selectionStart;
+    const delta = input.value.length - next.length;
+    input.value = next;
+    if (start != null && typeof input.setSelectionRange === "function") {
+      const pos = Math.max(0, start - Math.max(0, delta));
+      input.setSelectionRange(pos, pos);
+    }
+  }
+
+  function fitAmount(el) {
+    el.classList.remove("mid", "long");
+    if (el.scrollWidth > el.clientWidth + 1) el.classList.add("mid");
+    if (el.scrollWidth > el.clientWidth + 1) {
+      el.classList.remove("mid");
+      el.classList.add("long");
+    }
+  }
+
+  function fitAmounts() {
+    const nodes = sharesEl.querySelectorAll(".hero, .amt");
+    for (let i = 0; i < nodes.length; i += 1) fitAmount(nodes[i]);
+  }
+
+  function shareRow(count, cents) {
+    const row = document.createElement("div");
+    row.className = "share-row";
+    const who = document.createElement("span");
+    who.className = "who";
+    who.textContent = count === 1 ? "1 person" : count + " people";
+    const amt = document.createElement("span");
+    amt.className = "amt";
+    amt.textContent = formatCents(cents);
+    row.appendChild(who);
+    row.appendChild(amt);
+    return row;
+  }
+
+  function render(result) {
+    const shares = result.shares;
+    const first = shares[0];
+    const even = shares.every(function (cents) { return cents === first; });
+    sharesEl.textContent = "";
+
+    const kicker = document.createElement("p");
+    kicker.className = "kicker";
+    kicker.textContent = "What each person pays";
+    sharesEl.appendChild(kicker);
+
+    if (even) {
+      const hero = document.createElement("p");
+      hero.className = "hero";
+      hero.textContent = formatCents(first);
+      const note = document.createElement("p");
+      note.className = "note";
+      const who = shares.length === 1 ? "One person" : "All " + shares.length + " people";
+      note.textContent = result.tipCents > 0 ? who + ", tip included" : who;
+      sharesEl.appendChild(hero);
+      sharesEl.appendChild(note);
+    } else {
+      const higher = shares[0];
+      const lower = shares[shares.length - 1];
+      let higherCount = 0;
+      for (let i = 0; i < shares.length; i += 1) if (shares[i] === higher) higherCount += 1;
+      sharesEl.appendChild(shareRow(higherCount, higher));
+      sharesEl.appendChild(shareRow(shares.length - higherCount, lower));
+      const note = document.createElement("p");
+      note.className = "note";
+      const sum = shares.reduce(function (total, cents) { return total + cents; }, 0);
+      note.textContent = (result.tipCents > 0 ? "Tip included. " : "") +
+        "Shares add up to " + formatCents(sum) + ".";
+      sharesEl.appendChild(note);
+    }
+
+    tipLabel.textContent = "Tip " + formatPercent(result.bps);
+    tipOut.textContent = formatCents(result.tipCents);
+    totalOut.textContent = formatCents(result.totalCents);
+
+    presets.forEach(function (button) {
+      const match = tipInput.value !== "" && percentToBps(button.getAttribute("data-tip")) === result.bps;
+      button.setAttribute("aria-pressed", match ? "true" : "false");
+    });
+
+    const shown = readPeople() == null ? people : readPeople();
+    fewer.disabled = shown <= 1;
+    more.disabled = shown >= 99;
+    fitAmounts();
+  }
+
+  function update() {
+    const count = readPeople();
+    if (count != null) people = count;
+    render(calculate(billInput.value, tipInput.value, people));
+  }
+
+  function setPeople(next) {
+    people = clampPeople(next);
+    peopleInput.value = String(people);
+    update();
+  }
+
+  billInput.addEventListener("input", function () {
+    assignIfChanged(billInput, sanitizeMoney(billInput.value));
+    update();
+  });
+
+  tipInput.addEventListener("input", function () {
+    assignIfChanged(tipInput, sanitizePercent(tipInput.value));
+    update();
+  });
+
+  peopleInput.addEventListener("input", function () {
+    let digits = peopleInput.value.replace(/\D/g, "").slice(0, 2);
+    if (digits.length > 1) digits = digits.replace(/^0+/, "");
+    assignIfChanged(peopleInput, digits);
+    if (digits === "0") {
+      setPeople(1);
+      return;
+    }
+    update();
+  });
+
+  billInput.addEventListener("blur", function () {
+    if (billInput.value === "" || billInput.value === ".") return;
+    billInput.value = formatCents(moneyToCents(sanitizeMoney(billInput.value))).replace(/[$,]/g, "");
+    update();
+  });
+
+  tipInput.addEventListener("blur", function () {
+    let next = sanitizePercent(tipInput.value);
+    if (next === "" || next === ".") next = "0";
+    else if (next.charAt(next.length - 1) === ".") next = next.slice(0, -1);
+    if (next.indexOf(".") !== -1) next = next.replace(/0+$/, "").replace(/\.$/, "");
+    if (next === "") next = "0";
+    tipInput.value = next;
+    update();
+  });
+
+  peopleInput.addEventListener("blur", function () {
+    peopleInput.value = String(people);
+    update();
+  });
+
+  peopleInput.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setPeople(people + 1);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setPeople(people - 1);
+    }
+  });
+
+  function selectOnFocus(input) {
+    input.addEventListener("focus", function () {
+      setTimeout(function () { input.select(); }, 0);
+    });
+  }
+
+  selectOnFocus(billInput);
+  selectOnFocus(tipInput);
+  selectOnFocus(peopleInput);
+
+  presets.forEach(function (button) {
+    button.addEventListener("click", function () {
+      tipInput.value = button.getAttribute("data-tip");
+      update();
+    });
+  });
+
+  fewer.addEventListener("click", function () { setPeople(people - 1); });
+  more.addEventListener("click", function () { setPeople(people + 1); });
+
+  Array.prototype.forEach.call(document.querySelectorAll(".money, .percent"), function (wrap) {
+    wrap.addEventListener("click", function () {
+      const input = wrap.querySelector("input");
+      if (input && document.activeElement !== input) input.focus();
+    });
+  });
+
+  form.addEventListener("submit", function (event) { event.preventDefault(); });
+
+  window.addEventListener("resize", fitAmounts);
+  update();
+}
+
+if (typeof document !== "undefined") initSplitPage();
+</script>
 </body>
 </html>
