@@ -8,12 +8,12 @@ There is no account, no payment, and no ad. The page does not send what you type
 
 ## Open it
 
-This address returns the page as HTML, with the styles and the calculator included:
+Open this link in Chrome, Safari, Firefox, or Edge:
 
-**https://raw.githack.com/grokbotsm-prog/Split-/main/index.html**
+**https://htmlpreview.github.io/?https://raw.githubusercontent.com/grokbotsm-prog/Split-/main/index.html**
 
-Open that link in Chrome, Safari, Firefox, or Edge, on a phone or a computer.
+That response is `text/html`. The styles and the calculator are inside `index.html`, so the splitter shows up as a page, not as source code.
 
-To open the same page from a copy of this repository, double-click `index.html`, or use File → Open in the browser. It works with no internet connection.
+From a copy of this repository, double-click `index.html`, or use File → Open in the browser. That works with no internet connection.
 
-GitHub does not serve this file as a web page. `https://grokbotsm-prog.github.io/Split-/` is not published, and raw GitHub and jsDelivr send `index.html` as plain text, so those links show the source instead of the app. Use the link above.
+`https://grokbotsm-prog.github.io/Split-/` is not published. GitHub Pages is off for this repo, and the available GitHub access cannot turn it on. Raw GitHub and jsDelivr send `index.html` as `text/plain` with nosniff, so those links show the source instead of the app.
