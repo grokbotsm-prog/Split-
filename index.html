@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fbf6ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1814" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Split a restaurant check. Each person's share, the tip, and the total. Nothing is saved or sent.">
+  <title>Split</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239d3d22'/%3E%3Cpath d='M8 11h16M8 16h10M8 21h16' stroke='%23fbf6ec' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <h1>Split</h1>
+      <p class="tagline">Split a restaurant check.</p>
+    </header>
+
+    <section class="results" id="results" aria-live="polite" aria-atomic="true">
+      <div id="shares">
+        <p class="kicker">What each person pays</p>
+        <p class="hero">$0.00</p>
+        <p class="note">All 2 people</p>
+      </div>
+      <dl class="totals">
+        <div>
+          <dt id="tip-label">Tip 20%</dt>
+          <dd id="tip-out">$0.00</dd>
+        </div>
+        <div class="total-line">
+          <dt>Total</dt>
+          <dd id="total-out">$0.00</dd>
+        </div>
+      </dl>
+    </section>
+
+    <form id="check" autocomplete="off">
+      <div class="block">
+        <label for="bill">Bill</label>
+        <div class="money">
+          <span class="prefix" aria-hidden="true">$</span>
+          <input id="bill" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="0.00">
+        </div>
+      </div>
+
+      <fieldset class="block">
+        <legend>Tip</legend>
+        <div class="presets">
+          <button type="button" data-tip="15" aria-pressed="false">15%</button>
+          <button type="button" data-tip="18" aria-pressed="false">18%</button>
+          <button type="button" data-tip="20" aria-pressed="true">20%</button>
+          <button type="button" data-tip="25" aria-pressed="false">25%</button>
+        </div>
+        <label class="sublabel" for="tip">Or type a percent</label>
+        <div class="percent">
+          <input id="tip" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="20">
+          <span class="suffix" aria-hidden="true">%</span>
+        </div>
+      </fieldset>
+
+      <div class="block">
+        <label for="people">People</label>
+        <div class="stepper">
+          <button type="button" id="fewer" aria-label="Fewer people">−</button>
+          <input id="people" type="text" inputmode="numeric" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="2">
+          <button type="button" id="more" aria-label="More people">+</button>
+        </div>
+      </div>
+    </form>
+
+    <p class="footer">Nothing is saved or sent. It works offline.</p>
+    <noscript>
+      <p class="footer">Turn on JavaScript to calculate the split. The page still sends nothing over the network.</p>
+    </noscript>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
